@@ -104,15 +104,15 @@ function ChartRadialTexts({
                 data={chartData}
                 startAngle={-270}
                 endAngle={endAngle}
-                innerRadius={80}
-                outerRadius={110}
+                innerRadius={90}
+                outerRadius={140}
               >
                 <PolarGrid
                   gridType="circle"
                   radialLines={false}
                   stroke="none"
                   className="first:fill-muted last:fill-background"
-                  polarRadius={[86, 74]}
+                  polarRadius={[96, 84]}
                 />
                 <RadialBar dataKey="visitors" background cornerRadius={10} />
                 <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
@@ -129,7 +129,7 @@ function ChartRadialTexts({
                             <tspan
                               x={viewBox.cx}
                               y={viewBox.cy}
-                              className="fill-foreground text-4xl font-bold"
+                              className="fill-foreground text-5xl font-bold"
                             >
                               {value}
                             </tspan>
@@ -178,11 +178,11 @@ export default function Dashboard() {
           "Fechados Total",
           "Fechados Mês",
           "Fechados Dia",
-          "Colher Assinados",
+          "Colher Assinaturas",
           "Aguardando prontuário",
           "Em distribuição HRCA",
-          "Em análise",
-          "Com pendência",
+          "Em análise HRCA",
+          "Com pendência HRCA",
           "Pagos HRCA",
         ];
         const fetchedData: DataValue[] = [];
@@ -262,8 +262,8 @@ export default function Dashboard() {
                   name === "Fechados Mês"
                     ? "de 100"
                     : name === "Fechados Dia"
-                    ? "de 3"
-                    : ""
+                      ? "de 5"
+                      : ""
                 }
                 id={id}
                 onEdit={handleEdit}
@@ -280,50 +280,63 @@ export default function Dashboard() {
           {data
             .filter(
               (item) =>
-                !["Fechados Total", "Fechados Mês", "Fechados Dia"].includes(
-                  item.name
-                )
+                !["Fechados Total", "Fechados Mês", "Fechados Dia"].includes(item.name)
             )
-            .map(({ id, name, value }) => (
-              <Card key={id}>
-                <CardHeader>
-                  <CardTitle className="text-3xl font-semibold text-center">
-                    {name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-5xl font-bold text-center pt-4">
-                  {editingId === id && session?.user ? (
-                    <div className="flex flex-col gap-2">
-                      <Input
-                        type="number"
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="text-2xl w-full text-center"
-                      />
-                      <div className="flex gap-2 justify-center">
-                        <Button onClick={() => handleSave(id)}>Salvar</Button>
-                        <Button variant="outline" onClick={handleCancel}>
-                          Cancelar
-                        </Button>
+            .map(({ id, name, value }) => {
+              let numberColor = "";
+              if (
+                ["Colher Assinaturas", "Aguardando prontuário", "Com pendência HRCA"].includes(
+                  name
+                )
+              ) {
+                numberColor = "text-red-600"; // Red
+              } else if (["Pagos HRCA", "Em análise HRCA"].includes(name)) {
+                numberColor = "text-green-600"; // Green
+              } else if (name === "Em distribuição HRCA") {
+                numberColor = "text-orange-500"; // Orange
+              }
+
+              return (
+                <Card key={id}>
+                  <CardHeader>
+                    <CardTitle className="text-5xl font-semibold text-center">
+                      {name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-7xl font-semibold text-center pt-8">
+                    {editingId === id && session?.user ? (
+                      <div className="flex flex-col gap-2">
+                        <Input
+                          type="number"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="text-2xl w-full text-center"
+                        />
+                        <div className="flex gap-2 justify-center">
+                          <Button onClick={() => handleSave(id)}>Salvar</Button>
+                          <Button variant="outline" onClick={handleCancel}>
+                            Cancelar
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      {parseInt(value, 10)}
-                      {session?.user && (
-                        <Button
-                          variant="link"
-                          className="ml-2"
-                          onClick={() => handleEdit(id, value)}
-                        >
-                          Editar
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    ) : (
+                      <div>
+                        <span className={numberColor}>{parseInt(value, 10)}</span>
+                        {session?.user && (
+                          <Button
+                            variant="link"
+                            className="ml-2"
+                            onClick={() => handleEdit(id, value)}
+                          >
+                            Editar
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
         </div>
       </div>
     </div>
